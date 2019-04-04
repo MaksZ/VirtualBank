@@ -20,18 +20,17 @@ namespace VirtualBank.Data.Entities
 
     public static class BundleExtensions
     {
-        /// <rem>
+        /// <summary>
         /// Generates rules for bundle
         /// </summary>
         /// <param name="bundle">A valid bundle, i.e. composed with products having no collisions between their rules</param>
         /// <param name="defaultRules">Default rules for misssed constraint cateogries</param>
-        /// <returns></returns>
         public static ICollection<Rule> GetRules(this Bundle bundle, IReadOnlyCollection<Rule> defaultRules)
         {
-            var allRules = bundle.Products.Where(p => p.Rules != null).SelectMany(p => p.Rules);
-
             // Find common rule for each constraint category
-            var rules = allRules
+            var rules = bundle.Products
+                .Where(p => p.Rules != null)
+                .SelectMany(p => p.Rules)
                 .GroupBy(x => x.Constraint.Category)
                 .Select(g => g.GetCommonRule())
                 .ToList();
@@ -41,5 +40,12 @@ namespace VirtualBank.Data.Entities
 
             return rules;
         }
+
+        /// <summary>
+        /// Finds common rule; has sense only for rules without collisions 
+        /// </summary>
+        private static Rule GetCommonRule(this IEnumerable<Rule> rules)
+            =>
+                rules.OrderBy(r => r.ConstraintEngagement).ThenByDescending(r => r.Constraint.Precedence).First();
     }
 }

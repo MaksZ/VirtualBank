@@ -72,13 +72,7 @@ namespace VirtualBank.Data.Entities
             }
         }
 
-        /// <summary>
-        /// Finds such rule which constraint is included in all other rules
-        /// </summary>
-        public static Rule GetCommonRule(this IEnumerable<Rule> rules)
-            =>
-                rules.OrderBy(r => r.ConstraintEngagement).ThenByDescending(r => r.Constraint.Precedence).First();
-
+ 
         public static bool NotIn(this Rule self, IEnumerable<Rule> rules)
             =>
                 !rules.Any(rule => rule.Constraint.Category == self.Constraint.Category);

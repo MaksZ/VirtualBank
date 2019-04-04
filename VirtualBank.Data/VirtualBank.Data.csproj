@@ -44,7 +44,7 @@
     <Compile Include="Entities\Product.cs" />
     <Compile Include="Entities\Constraint.cs" />
     <Compile Include="Entities\Category.cs" />
-    <Compile Include="Entities\ProductBundle.cs" />
+    <Compile Include="Entities\Bundle.cs" />
     <Compile Include="Entities\Rule.cs" />
     <Compile Include="Enums\CategoryType.cs" />
     <Compile Include="Enums\ConstraintCategory.cs" />

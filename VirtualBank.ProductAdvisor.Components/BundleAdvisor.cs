@@ -116,7 +116,5 @@ namespace VirtualBank.ProductAdvisor.Components
 
             return true;
         }
-
-        
     }
 }
