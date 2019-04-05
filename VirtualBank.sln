@@ -9,7 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualBank.Sandbox", "Virt
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{2BEFE564-FB72-4285-AC8C-087E877BD39B}"
 	ProjectSection(SolutionItems) = preProject
-		Docs\NET_Developer_Assignment.pdf = Docs\NET_Developer_Assignment.pdf
+		Docs\Guidance.png = Docs\Guidance.png
+		Docs\Problem description.png = Docs\Problem description.png
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualBank.ProductAdvisor.Components", "VirtualBank.ProductAdvisor.Components\VirtualBank.ProductAdvisor.Components.csproj", "{0BCB16EF-00AC-401B-9CB4-AC968882C489}"
