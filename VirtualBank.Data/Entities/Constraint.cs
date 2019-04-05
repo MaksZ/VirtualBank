@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VirtualBank.Data.Enums;
 
 namespace VirtualBank.Data.Entities
 {
@@ -20,5 +21,18 @@ namespace VirtualBank.Data.Entities
         /// Describes the constraint in human-friendly way
         /// </summary>
         public string DisplayText { get; set; }
+    }
+
+    public static class ConstraintExtensions
+    {
+        public static Constraint GetItem(this Category obj, int precedence)
+        {
+            var item = (precedence >= 0) ? obj.Items.OfType<Constraint>().FirstOrDefault(x => x.Precedence == precedence) : null;
+
+            if (item == null)
+                throw new ArgumentOutOfRangeException($"{obj.Description} must be in range [0, {obj.Items.Count - 1}], actual value: {precedence}");
+
+            return item;
+        }
     }
 }

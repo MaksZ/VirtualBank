@@ -24,7 +24,7 @@ namespace VirtualBank.ProductAdvisor.Components
         /// </summary>
         /// <param name="constrains"></param>
         /// <returns></returns>
-        public ICollection<Bundle> Select(IReadOnlyCollection<Constraint> constraints)
+        public ICollection<Bundle> SelectBy(IReadOnlyCollection<Constraint> constraints)
         {
             if (constraints == null)
                 throw new ArgumentNullException(nameof(constraints));
@@ -54,7 +54,7 @@ namespace VirtualBank.ProductAdvisor.Components
             if (products == null || products.Count == 0) return false;
 
             // Check one account rule
-            var accounts = products.Where(p => p.IsOf(ProductCategory.Account)).ToList();
+            var accounts = products.Where(p => p.Category.IsOf(ProductCategory.Account)).ToList();
 
             if (accounts.Count != 1) return false;
 

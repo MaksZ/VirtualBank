@@ -35,9 +35,7 @@ namespace VirtualBank.Data
             return dm;
         }
 
-        public static Category Get<T>(this IEnumerable<Category> source, T name) => source.First(x => x.Description == name.ToString());
-
-        public static Constraint GetItem(this Category category, string name) => category.Items.OfType<Constraint>().First(x => x.DisplayText == name);
+        internal static Constraint GetItem(this Category category, string name) => category.Items.OfType<Constraint>().First(x => x.DisplayText == name);
 
         private static int GenId() => ++keyId;
 

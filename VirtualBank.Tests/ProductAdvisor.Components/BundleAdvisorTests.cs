@@ -40,7 +40,7 @@ namespace VirtualBank.Tests.ProductAdvisor.Components
                 .OfType<Constraint>()
                 .ToList();
 
-            var result = sut.Select(constraints);
+            var result = sut.SelectBy(constraints);
 
             Assert.Fail();
         }
@@ -53,7 +53,7 @@ namespace VirtualBank.Tests.ProductAdvisor.Components
                 FromCategory(ConstraintCategory.Age).GetItem(ModelBuilder.Constants.Age_0_17)
             };
 
-            var result = sut.Select(constraints);
+            var result = sut.SelectBy(constraints);
 
             Assert.IsTrue(result.Count == 1);
             Assert.AreEqual(ModelBuilder.Constants.Bundle_junior_saver, result.First().Name);
@@ -67,7 +67,7 @@ namespace VirtualBank.Tests.ProductAdvisor.Components
                 FromCategory(ConstraintCategory.Student).GetItem(ModelBuilder.Constants.Student_yes)
             };
 
-            var result = sut.Select(constraints);
+            var result = sut.SelectBy(constraints);
 
             Assert.IsTrue(result.Count == 1);
             Assert.AreEqual(ModelBuilder.Constants.Bundle_student, result.First().Name);
@@ -81,7 +81,7 @@ namespace VirtualBank.Tests.ProductAdvisor.Components
                 FromCategory(ConstraintCategory.Student).GetItem(ModelBuilder.Constants.Student_no)
             };
 
-            var result = sut.Select(constraints);
+            var result = sut.SelectBy(constraints);
 
             Assert.IsTrue(result.Count > 0);
             Assert.IsTrue(result.All(b => b.Name != ModelBuilder.Constants.Bundle_student));

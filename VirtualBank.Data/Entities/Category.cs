@@ -27,4 +27,16 @@ namespace VirtualBank.Data.Entities
         /// </summary>
         public virtual ICollection<CategoryItem> Items { get; set; }
     }
+
+    public static class CategoryExtensions
+    {
+        public static Category Get<T>(this IEnumerable<Category> source, T name) where T : struct
+            => 
+                source.First(x => x.IsOf(name));
+
+
+        public static bool IsOf<T>(this Category obj, T category) where T : struct
+            => 
+                obj.Description == category.ToString();
+    }
 }

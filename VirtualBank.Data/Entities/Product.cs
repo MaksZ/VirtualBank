@@ -38,16 +38,4 @@ namespace VirtualBank.Data.Entities
         /// </summary>
         public virtual ICollection<Bundle> Bundles { get; set; }
     }
-
-    public static class ProductExtentions
-    {
-        public static bool HasRuleThatViolates(this Product obj, Constraint constraint)
-        {
-            return obj.Rules != null && obj.Rules.Any(r => r.IsViolatedBy(constraint));
-        }
-
-        public static bool IsOf(this Product product, ProductCategory category)
-            =>
-                product.Category.Description == category.ToString();
-    }
 }

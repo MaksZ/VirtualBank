@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualBank.ProductAdvisor.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualBank.Tests", "VirtualBank.Tests\VirtualBank.Tests.csproj", "{50580832-A97C-448B-B18F-D5367A0370E8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualBank.ProductAdvisor", "VirtualBank.ProductAdvisor\VirtualBank.ProductAdvisor.csproj", "{BFD76498-5A41-4D9F-A15C-970955B282A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{50580832-A97C-448B-B18F-D5367A0370E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50580832-A97C-448B-B18F-D5367A0370E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50580832-A97C-448B-B18F-D5367A0370E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFD76498-5A41-4D9F-A15C-970955B282A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFD76498-5A41-4D9F-A15C-970955B282A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFD76498-5A41-4D9F-A15C-970955B282A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFD76498-5A41-4D9F-A15C-970955B282A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
