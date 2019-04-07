@@ -19,6 +19,12 @@ namespace VirtualBank.ProductAdvisor
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+            config.Routes.MapHttpRoute(
+                name: "Welcome",
+                routeTemplate: "{id}",
+                defaults: new { controller = "RuleThemAll", action = "Welcome", id = RouteParameter.Optional }
+            );
         }
     }
 }

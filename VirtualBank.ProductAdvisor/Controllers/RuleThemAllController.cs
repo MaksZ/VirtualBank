@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Description;
 using VirtualBank.Data;
@@ -14,7 +15,17 @@ namespace VirtualBank.ProductAdvisor.Controllers
 {
     public class RuleThemAllController : ApiController
     {
-        private readonly IDataModel dataModel = new VirtualBankRepo();
+        private readonly IDataModel dataModel = GetDataModel();
+
+        [HttpGet]
+        public HttpResponseMessage Welcome()
+        {
+            var response = new HttpResponseMessage();
+            var page = System.Web.HttpContext.Current.Request.MapPath("~/Welcome.html");
+            response.Content = new StringContent(System.IO.File.ReadAllText(page));
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+            return response;
+        }
 
 
         [Route("api/bundles")]
@@ -70,9 +81,10 @@ namespace VirtualBank.ProductAdvisor.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return InternalServerError();
+                // It's ok for demo purposes
+                return InternalServerError(ex);
             }
         }
 
@@ -139,6 +151,24 @@ namespace VirtualBank.ProductAdvisor.Controllers
                 throw new ArgumentException("At least one answer is expected!");
 
             return constraints;
+        }
+
+        private static IDataModel GetDataModel()
+        {
+            try
+            {
+                var repo = new VirtualBankRepo();
+
+                if (!repo.SelfCheck())
+                    return ModelBuilder.Build();
+
+                return repo;
+            }
+            catch
+            {
+                // In case hosted database doesn't respond, let's return at least anything
+                return ModelBuilder.Build();
+            }
         }
     }
 }

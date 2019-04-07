@@ -108,5 +108,10 @@ namespace VirtualBank.Data
         {
             db?.Dispose();
         }
+
+        public bool SelfCheck()
+        {
+            return db.Categories.Count() > 0;
+        }
     }
 }
