@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -49,21 +50,42 @@ namespace VirtualBank.ProductAdvisor.Components
         /// <returns></returns>
         public static bool IsValidBundle(Bundle bundle)
         {
+            return !Validate(bundle, verbose: false).Any();
+        }
+
+        public static ICollection<ValidationResult> Validate(Bundle bundle, bool verbose)
+        {
+            var result = new List<ValidationResult>();
+
+            const string generalError = "Validation failed";
+
             var products = bundle.Products;
 
-            if (products == null || products.Count == 0) return false;
+            if (products == null || products.Count == 0)
+            {
+                result.Add(new ValidationResult(verbose ? "Bundle must have at least one product" : generalError));
+                return result;
+            }
 
             // Check one account rule
             var accounts = products.Where(p => p.Category.IsOf(ProductCategory.Account)).ToList();
 
-            if (accounts.Count != 1) return false;
+            if (accounts.Count != 1)
+            {
+                result.Add(new ValidationResult(verbose ? "Bundle must have only one account" : generalError));
+                return result;
+            }
 
             // Check bound products
-            var boundProducstCheckFailed = products
+            var unboundProduct = products
                 .Where(p => p.IsBound)
-                .Any(x => products.Where(y => y != x).All(y => !x.BoundToProducts.Contains(y.Name)));
+                .FirstOrDefault(x => products.Where(y => y != x).All(y => !x.BoundToProducts.Contains(y.Name)));
 
-            if (boundProducstCheckFailed) return false;
+            if (unboundProduct !=null)
+            {
+                result.Add(new ValidationResult(verbose ? UnboundProduct_Message(unboundProduct) : generalError));
+                return result;
+            }
 
             // Check rule collisions
             var grouppedRules = products
@@ -77,8 +99,8 @@ namespace VirtualBank.ProductAdvisor.Components
 
                 if (orderedRules.Count == 1) continue; // one rule, no collisions
 
-                var prevRule = orderedRules[0];
-                var secondExactFound = true;
+                Rule prevExactRule = null, prevRule = orderedRules[0];
+                ValidationResult collision = null;
 
                 foreach (var nextRule in orderedRules.Skip(1))
                 {
@@ -93,28 +115,47 @@ namespace VirtualBank.ProductAdvisor.Components
                         if (prevRule.Constraint.Precedence != nextRule.Constraint.Precedence)
                         {
                             // e.g. "Age only <18" collides with "Age only in [18-64]"
-                            return false;
+                            collision = new ValidationResult(!verbose ? generalError : IncompatibleProducts_Message(prevRule, nextRule));
+                            break;
                         }
                     }
                     else
                     {
-                        if ((secondExactFound = !secondExactFound))
+                        if (prevExactRule != null)
                         {
-                            return false;
+                            collision = new ValidationResult(!verbose ? generalError : IncompatibleProducts_Message(prevExactRule, nextRule));
+                            break;
                         }
+                        else
+                            prevExactRule = prevRule;
 
                         if (prevRule.Constraint.Precedence < nextRule.Constraint.Precedence)
                         {
                             // e.g. "Age only <18" collides with "Age from [18-64] or higher"
-                            return false;
+                            collision = new ValidationResult(!verbose ? generalError : IncompatibleProducts_Message(prevRule, nextRule));
+                            break;
                         }
                     }
 
                     prevRule = nextRule;
                 }
+
+                if (collision != null)
+                {
+                    result.Add(collision);
+                    break;
+                }
             }
 
-            return true;
+            return result;
         }
+
+        private static string UnboundProduct_Message(Product p)
+            =>
+               $"Product '{p.DisplayText}' requires any of '{p.BoundToProducts}' to be included";
+
+        private static string IncompatibleProducts_Message(Rule r1, Rule r2)
+            =>
+                $"Products '{r1.Product.DisplayText}' and '{r2.Product.DisplayText}' are incompatible by {r1.Constraint.Category.Description} condition";
     }
 }
