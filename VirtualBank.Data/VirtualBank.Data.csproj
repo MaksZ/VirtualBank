@@ -71,6 +71,7 @@
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VirtualBankContext.cs" />
+    <Compile Include="VirtualBankRepo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

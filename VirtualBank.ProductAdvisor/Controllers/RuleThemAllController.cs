@@ -14,7 +14,9 @@ namespace VirtualBank.ProductAdvisor.Controllers
 {
     public class RuleThemAllController : ApiController
     {
-        private readonly IDataModel dataModel = ModelBuilder.Build();
+        // private readonly IDataModel dataModel = ModelBuilder.Build();
+        private readonly IDataModel dataModel = new VirtualBankRepo();
+
 
         [Route("api/bundles")]
         public IEnumerable<BundleDto> Get()
