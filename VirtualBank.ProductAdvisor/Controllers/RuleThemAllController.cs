@@ -12,24 +12,23 @@ using VirtualBank.ProductAdvisor.DTO;
 
 namespace VirtualBank.ProductAdvisor.Controllers
 {
-
-    [RoutePrefix("api/bundles")]
-    public class BundlesController : ApiController
+    public class RuleThemAllController : ApiController
     {
         private readonly IDataModel dataModel = ModelBuilder.Build();
 
+        [Route("api/bundles")]
         public IEnumerable<BundleDto> Get()
         {
             return dataModel.Bundles.Select(Converter.AsBundleDto);
         }
 
-        [Route("questions")]
+        [Route("api/questions")]
         public IEnumerable<QuestionDto> GetConstraints()
         {
             return dataModel.ConstraintCategories.Select(Converter.AsQuestionDto);
         }
 
-        [Route("advise")]
+        [Route("api/bundles/advise")]
         [ResponseType(typeof(BundleDto))]
         public IHttpActionResult GetByConstraints(int age = -1, int student = -1, int income = -1)
         {
@@ -49,9 +48,9 @@ namespace VirtualBank.ProductAdvisor.Controllers
                 if (!constraints.Any())
                     return BadRequest("At least one answer is expected!");
 
-                var advisor = new Components.BundleAdvisor(dataModel.Bundles, dataModel.DefaultRules);
+                var bundleAdvisor = new Components.BundleAdvisor(dataModel.Bundles, dataModel.DefaultRules);
 
-                var bundle = advisor
+                var bundle = bundleAdvisor
                     .SelectBy(constraints)
                     .OrderByDescending(b => b.Priority)
                     .Select(Converter.AsBundleDto)

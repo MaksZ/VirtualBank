@@ -28,7 +28,7 @@ namespace VirtualBank.Data.Entities
         /// </summary>
         /// <param name="bundle">A valid bundle, i.e. composed with products having no collisions between their rules</param>
         /// <param name="defaultRules">Default rules for misssed constraint categories</param>
-        public static ICollection<Rule> GetRules(this Bundle bundle, IReadOnlyCollection<Rule> defaultRules)
+        public static ICollection<Rule> GetRules(this Bundle bundle, IReadOnlyCollection<Rule> defaultRules = null)
         {
             // Find common rule for each constraint category
             var rules = bundle.Products
@@ -39,7 +39,8 @@ namespace VirtualBank.Data.Entities
                 .ToList();
 
             // We complete the set with rules for categories, that the set doesn't contain
-            rules.AddRange(defaultRules.Where(dr => dr.NotIn(rules)).ToList());
+            if (defaultRules != null)
+                rules.AddRange(defaultRules.Where(dr => dr.NotIn(rules)).ToList());
 
             return rules;
         }

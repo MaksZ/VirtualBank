@@ -86,7 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\BundlesController.cs" />
+    <Compile Include="Controllers\RuleThemAllController.cs" />
     <Compile Include="DTO\AnswerDto.cs" />
     <Compile Include="DTO\BundleDto.cs" />
     <Compile Include="DTO\Converter.cs" />

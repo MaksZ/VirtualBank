@@ -85,5 +85,11 @@ namespace VirtualBank.Data.Entities
         public static bool Satisfies(this Constraint constraint, IEnumerable<Rule> rules) 
             => 
                 !rules.Any(rule => constraint.IsApplicableTo(rule) && constraint.Violates(rule));
+
+        public static string ToDescription(this IEnumerable<Rule> rules)
+            =>
+            rules == null
+            ? string.Empty
+            : string.Join(", ", rules.Select(r => r.Description).Where(s => !string.IsNullOrEmpty(s)));
     }
 }

@@ -11,6 +11,8 @@ namespace VirtualBank.ProductAdvisor.DTO
 
         public string Name { get; set; }
 
+        public string RuleDescription { get; set; }
+
         public IList<ProductDto> Products { get; set; }
     }
 }

@@ -12,7 +12,11 @@ namespace VirtualBank.ProductAdvisor.DTO
             obj => new ProductDto
             {
                 Id = obj.Id,
-                Name = obj.DisplayText
+                Name = obj.DisplayText,
+                RuleDescription = 
+                    !string.IsNullOrEmpty(obj.BoundToProducts)
+                    ? $"Depends on : {obj.BoundToProducts}"
+                    : obj.Rules.ToDescription()
             };
 
         public static Func<Bundle, BundleDto> AsBundleDto = 
@@ -20,6 +24,7 @@ namespace VirtualBank.ProductAdvisor.DTO
             {
                 Id = obj.Id,
                 Name = obj.Name,
+                RuleDescription = obj.GetRules().ToDescription(),
                 Products = obj.Products.Select(AsProductDto).ToList()
             };
 
