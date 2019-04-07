@@ -49,33 +49,31 @@ namespace VirtualBank.Data.Entities
     public static class RuleExtentions
     {
         /// <summary>
-        /// Shows if given constraint belongs to the same category as one in the rule
+        /// Shows if a constraint can be applied to a rule
         /// </summary>
-        public static bool Correlates(this Rule obj, Constraint constraint)
-        {
-            return obj.Constraint.Category == constraint.Category;
-        }
+        public static bool IsApplicableTo(this Constraint constraint, Rule rule)
+            =>
+                rule.Constraint.Category == constraint.Category;
 
         /// <summary>
-        /// Shows if rule is violated by given constraint; 
-        /// IMPORTANT: call method only for constraint that this rule correlates with
+        /// Shows if a constraint violates a rule; 
+        /// IMPORTANT: method can be called only one constraints that are applicable to a rule
         /// </summary>
-        public static bool IsViolatedBy(this Rule obj, Constraint constraint)
+        public static bool Violates(this Constraint constraint, Rule rule)
         {
-            switch (obj.ConstraintEngagement)
+            switch (rule.ConstraintEngagement)
             {
                 case ConstraintEngagement.Exact:
-                    return obj.Constraint.Precedence != constraint.Precedence;
+                    return rule.Constraint.Precedence != constraint.Precedence;
 
                 case ConstraintEngagement.IncludingAbove:
-                    return obj.Constraint.Precedence > constraint.Precedence;
+                    return rule.Constraint.Precedence > constraint.Precedence;
 
                 default:
                     return false;
             }
         }
 
- 
         public static bool NotIn(this Rule self, IEnumerable<Rule> rules)
             =>
                 !rules.Any(rule => rule.Constraint.Category == self.Constraint.Category);
@@ -86,6 +84,6 @@ namespace VirtualBank.Data.Entities
 
         public static bool Satisfies(this Constraint constraint, IEnumerable<Rule> rules) 
             => 
-                !rules.Any(rule => rule.Correlates(constraint) && rule.IsViolatedBy(constraint));
+                !rules.Any(rule => constraint.IsApplicableTo(rule) && constraint.Violates(rule));
     }
 }

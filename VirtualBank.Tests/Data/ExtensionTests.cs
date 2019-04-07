@@ -22,31 +22,31 @@ namespace VirtualBank.Tests.Data
         }
 
         [TestMethod]
-        public void Rule_ShouldCorrelate_WithConstraintOfTheSameCategory()
+        public void Constraint_ShouldBeApplicable_ToRuleOfTheSameCategory()
         {
             var constraints = GetConstraints(ConstraintCategory.Age).ToList();
 
-            var sut = new Rule { Constraint = constraints.First() };
+            var rule = new Rule { Constraint = constraints.First() };
 
-            constraints.ForEach(constraint => Assert.IsTrue(sut.Correlates(constraint)));
+            constraints.ForEach(constraint => Assert.IsTrue(constraint.IsApplicableTo(rule)));
         }
 
         [TestMethod]
-        public void Rule_ShouldNotCorrelate_WithConstraintOfOtherCategory()
+        public void Constraint_ShouldNotBeApplicable_ToRuleOfOtherCategory()
         {
             var age = GetConstraints(ConstraintCategory.Age).ToList();
             var income = GetConstraints(ConstraintCategory.Income).ToList();
 
-            var sut = new Rule { };
+            var rule = new Rule { };
 
             foreach (var ageConstraint in age)
-                foreach (var incomeConstaint in income)
+                foreach (var incomeConstraint in income)
                 {
-                    sut.Constraint = ageConstraint;
-                    Assert.IsFalse(sut.Correlates(incomeConstaint));
+                    rule.Constraint = ageConstraint;
+                    Assert.IsFalse(incomeConstraint.IsApplicableTo(rule));
 
-                    sut.Constraint = incomeConstaint;
-                    Assert.IsFalse(sut.Correlates(ageConstraint));
+                    rule.Constraint = incomeConstraint;
+                    Assert.IsFalse(ageConstraint.IsApplicableTo(rule));
                 }
         }
 
@@ -55,12 +55,12 @@ namespace VirtualBank.Tests.Data
         {
             var student = GetConstraints(ConstraintCategory.Student).ToList();
 
-            var sut = new Rule { Constraint = student[0], ConstraintEngagement = ConstraintEngagement.Exact };
+            var rule = new Rule { Constraint = student[0], ConstraintEngagement = ConstraintEngagement.Exact };
 
-            Assert.IsFalse(sut.IsViolatedBy(student[0]));
+            Assert.IsFalse(student[0].Violates(rule));
 
             var weak = new Constraint { Precedence = student[0].Precedence };
-            Assert.IsFalse(sut.IsViolatedBy(weak));
+            Assert.IsFalse(weak.Violates(rule));
         }
 
         [TestMethod]
@@ -68,12 +68,12 @@ namespace VirtualBank.Tests.Data
         {
             var student = GetConstraints(ConstraintCategory.Student).ToList();
 
-            var sut = new Rule { Constraint = student[0], ConstraintEngagement = ConstraintEngagement.Exact };
+            var rule = new Rule { Constraint = student[0], ConstraintEngagement = ConstraintEngagement.Exact };
 
-            Assert.IsTrue(sut.IsViolatedBy(student[1]));
+            Assert.IsTrue(student[1].Violates(rule));
 
             var weak = new Constraint { Precedence = student[1].Precedence };
-            Assert.IsTrue(sut.IsViolatedBy(weak));
+            Assert.IsTrue(weak.Violates(rule));
         }
 
         [TestMethod]
@@ -81,11 +81,11 @@ namespace VirtualBank.Tests.Data
         {
             var income = GetConstraints(ConstraintCategory.Income).ToList();
 
-            var sut = new Rule { Constraint = income[0], ConstraintEngagement = ConstraintEngagement.IncludingAbove };
+            var rule = new Rule { Constraint = income[0], ConstraintEngagement = ConstraintEngagement.IncludingAbove };
 
-            Assert.IsFalse(sut.IsViolatedBy(income[0]));
-            Assert.IsFalse(sut.IsViolatedBy(income[1]));
-            Assert.IsFalse(sut.IsViolatedBy(income[2]));
+            Assert.IsFalse(income[0].Violates(rule));
+            Assert.IsFalse(income[1].Violates(rule));
+            Assert.IsFalse(income[2].Violates(rule));
         }
 
         [TestMethod]
@@ -93,10 +93,60 @@ namespace VirtualBank.Tests.Data
         {
             var income = GetConstraints(ConstraintCategory.Income).ToList();
 
-            var sut = new Rule { Constraint = income[3], ConstraintEngagement = ConstraintEngagement.IncludingAbove };
+            var rule = new Rule { Constraint = income[3], ConstraintEngagement = ConstraintEngagement.IncludingAbove };
 
-            Assert.IsTrue(sut.IsViolatedBy(income[0]));
-            Assert.IsTrue(sut.IsViolatedBy(income[1]));
+            Assert.IsTrue(income[0].Violates(rule));
+            Assert.IsTrue(income[1].Violates(rule));
+        }
+
+        [TestMethod]
+        public void RuleExact_IsStronger_ThanIncludingAbove()
+        {
+            var age = GetConstraints(ConstraintCategory.Age).ToList();
+
+            var rules = new[]
+            {
+                new Rule { Constraint = age[1], ConstraintEngagement = ConstraintEngagement.IncludingAbove },
+                new Rule { Constraint = age[1], ConstraintEngagement = ConstraintEngagement.Exact },
+            };
+
+            Assert.AreEqual(ConstraintEngagement.Exact, rules.GetCommonRule().ConstraintEngagement);
+
+            rules = new[]
+            {
+                new Rule { Constraint = age[1], ConstraintEngagement = ConstraintEngagement.Exact },
+                new Rule { Constraint = age[0], ConstraintEngagement = ConstraintEngagement.IncludingAbove },
+            };
+
+            Assert.AreEqual(ConstraintEngagement.Exact, rules.GetCommonRule().ConstraintEngagement);
+        }
+
+        [TestMethod]
+        public void RuleWithHigherPrecedence_IsStronger_ThanWithLower()
+        {
+            var income = GetConstraints(ConstraintCategory.Income).OfType<Constraint>().ToList();
+
+            var data = new[]
+            {
+                new int [] { 0, 2 },
+                new int [] { 1, 3, 2 },
+                new int [] { 2, 0, 1 }
+            };
+
+            foreach (var sample in data)
+            {
+                var rules = sample
+                    .Select(val => new Rule
+                    {
+                        Constraint = income.First(c => c.Precedence == val),
+                        ConstraintEngagement = ConstraintEngagement.IncludingAbove
+                    })
+                    .ToList();
+
+                var commonRule = rules.GetCommonRule();
+
+                Assert.AreEqual(sample.Max(), commonRule.Constraint.Precedence);
+            }
         }
 
         private static IEnumerable<Constraint> GetConstraints(ConstraintCategory cc)

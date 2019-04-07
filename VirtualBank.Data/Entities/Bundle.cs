@@ -22,10 +22,12 @@ namespace VirtualBank.Data.Entities
     public static class BundleExtensions
     {
         /// <summary>
-        /// Generates rules for bundle
+        /// Generates rules for bundle - a subset of product rules, 
+        /// such as if some constraint doesn't violate it, 
+        /// it won't violate all bundle's product rules, applied to each product's rules separately
         /// </summary>
         /// <param name="bundle">A valid bundle, i.e. composed with products having no collisions between their rules</param>
-        /// <param name="defaultRules">Default rules for misssed constraint cateogries</param>
+        /// <param name="defaultRules">Default rules for misssed constraint categories</param>
         public static ICollection<Rule> GetRules(this Bundle bundle, IReadOnlyCollection<Rule> defaultRules)
         {
             // Find common rule for each constraint category
@@ -36,7 +38,7 @@ namespace VirtualBank.Data.Entities
                 .Select(g => g.GetCommonRule())
                 .ToList();
 
-            // Complete missing cateogries with defaults
+            // We complete the set with rules for categories, that the set doesn't contain
             rules.AddRange(defaultRules.Where(dr => dr.NotIn(rules)).ToList());
 
             return rules;
@@ -45,7 +47,13 @@ namespace VirtualBank.Data.Entities
         /// <summary>
         /// Finds common rule; has sense only for rules without collisions 
         /// </summary>
-        private static Rule GetCommonRule(this IEnumerable<Rule> rules)
+        /// <remarks>
+        /// A rule with exact engagement is stronger than having 'include above' one;
+        /// A rule with higher precedence is stronger  that with lower one;
+        /// E.g.: common rule for Rule(age > 17) and Rule(age in [18-64]) is Rule(age in [18-64]),
+        /// common rule for Rule(income > 12000) and Rule(income > 40000) is Rule(income > 40000)
+        /// </remarks>
+        internal static Rule GetCommonRule(this IEnumerable<Rule> rules)
             =>
                 rules.OrderBy(r => r.ConstraintEngagement).ThenByDescending(r => r.Constraint.Precedence).First();
     }
