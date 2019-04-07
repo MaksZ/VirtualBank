@@ -29,8 +29,8 @@ namespace VirtualBank.ProductAdvisor.Controllers
         }
 
         [Route("api/bundles/advise")]
-        [ResponseType(typeof(BundleDto))]
-        public IHttpActionResult GetByConstraints(int age = -1, int student = -1, int income = -1)
+        [ResponseType(typeof(AdviseDto))]
+        public IHttpActionResult GetAdvise(int age = -1, int student = -1, int income = -1)
         {
             try
             {
@@ -58,7 +58,16 @@ namespace VirtualBank.ProductAdvisor.Controllers
 
                 if (bundle == null) return NotFound();
 
-                return Ok(bundle);
+                return Ok(new AdviseDto
+                {
+                    SelectedBundle = bundle,
+                    Answers= new AnswerDigest
+                    {
+                        Age = age,
+                        Student = student,
+                        Income = income
+                    }
+                });
             }
             catch (ArgumentOutOfRangeException ex)
             {
@@ -68,6 +77,13 @@ namespace VirtualBank.ProductAdvisor.Controllers
             {
                 return InternalServerError();
             }
+        }
+
+        [HttpPost]
+        [Route("api/bundles/advise")]
+        public IHttpActionResult ValidateAdvise(AdviseDto advise)
+        {
+            return Ok();
         }
 
         protected override void Dispose(bool disposing)
