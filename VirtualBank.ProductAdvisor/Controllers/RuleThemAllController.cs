@@ -36,19 +36,7 @@ namespace VirtualBank.ProductAdvisor.Controllers
         {
             try
             {
-                var constraints = new List<Constraint>();
-
-                if (age != -1)
-                    constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Age).GetItem(age));
-
-                if (student != -1)
-                    constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Student).GetItem(student));
-
-                if (income != -1)
-                    constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Income).GetItem(income));
-
-                if (!constraints.Any())
-                    return BadRequest("At least one answer is expected!");
+                var constraints = GetConstraintsBy(age, student, income);
 
                 var bundleAdvisor = new Components.BundleAdvisor(dataModel.Bundles, dataModel.DefaultRules);
 
@@ -71,7 +59,7 @@ namespace VirtualBank.ProductAdvisor.Controllers
                     }
                 });
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -81,11 +69,63 @@ namespace VirtualBank.ProductAdvisor.Controllers
             }
         }
 
+        private List<Constraint> GetConstraintsBy(int age = -1, int student = -1, int income = -1)
+        {
+            var constraints = new List<Constraint>();
+
+            if (age != -1)
+                constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Age).GetItem(age));
+
+            if (student != -1)
+                constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Student).GetItem(student));
+
+            if (income != -1)
+                constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Income).GetItem(income));
+
+            if (!constraints.Any())
+                throw new ArgumentException("At least one answer is expected!");
+
+            return constraints;
+        }
+
         [HttpPost]
         [Route("api/bundles/advise")]
         public IHttpActionResult ValidateAdvise(AdviseDto advise)
         {
-            return Ok();
+            try
+            {
+                if (advise.SelectedBundle == null)
+                    return BadRequest("Bundle is not included");
+
+                var bundle = advise.SelectedBundle.AsAttachedTo(dataModel);
+
+                var validationResult = Components.BundleAdvisor.Validate(bundle, verbose: true);
+
+                if (validationResult.Any())
+                    return BadRequest(string.Join(Environment.NewLine, validationResult.Select(x => x.ErrorMessage)));
+
+                var t = advise.Answers;
+                var constraints = GetConstraintsBy(t.Age, t.Student, t.Income);
+
+                var bundleAdvisor = new Components.BundleAdvisor(new[] { bundle }, dataModel.DefaultRules);
+
+                bundle = bundleAdvisor
+                    .SelectBy(constraints)
+                    .OrderByDescending(b => b.Priority)
+                    .FirstOrDefault();
+
+                if (bundle == null) return BadRequest("Bundle doesn't match given constraints");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                if (ex is Converter.AttachmentException || ex is ArgumentException)
+                    return BadRequest(ex.Message);
+
+                // It's ok for demo purposes
+                return InternalServerError(ex);
+            }
         }
 
         protected override void Dispose(bool disposing)

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using VirtualBank.Data;
 using VirtualBank.Data.Entities;
 
 namespace VirtualBank.ProductAdvisor.DTO
 {
-    internal class Converter
+    internal static class Converter
     {
         public static Func<Product, ProductDto> AsProductDto =
             obj => new ProductDto
@@ -45,5 +46,41 @@ namespace VirtualBank.ProductAdvisor.DTO
                     .Select(AsAnswerDto)
                     .ToList()
             };
+
+
+        internal static Bundle AsAttachedTo(this BundleDto obj, IDataModel dataModel)
+        {
+            var bundle = new Bundle
+            {
+                Products = new List<Product>()
+            };
+
+            if (obj.Products == null) return bundle;
+
+            var items = dataModel.ProductCategories
+                    .SelectMany(x => x.Items).ToList();
+
+            var products = items.OfType<Product>()
+                    .ToList();
+
+            foreach (var productDto in obj.Products)
+            {
+                var product = products
+                    .FirstOrDefault(x => x.Id == productDto.Id);
+
+                if (product == null)
+                    throw new AttachmentException($"Unknown product, Id: {productDto.Id}");
+
+                bundle.Products.Add(product);
+            }
+
+            return bundle;
+        }
+
+        public class AttachmentException : Exception
+        {
+            public AttachmentException(string message) : base(message) { }
+        }
+
     }
 }

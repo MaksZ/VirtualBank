@@ -152,7 +152,7 @@ namespace VirtualBank.ProductAdvisor.Components
 
         private static string UnboundProduct_Message(Product p)
             =>
-               $"Product '{p.DisplayText}' requires any of '{p.BoundToProducts}' to be included";
+               $"Product '{p.DisplayText}' requires any of other products to be included: {string.Join(", ", p.BoundToProducts.Split(';').Select(t => $"{t}"))}";
 
         private static string IncompatibleProducts_Message(Rule r1, Rule r2)
             =>
