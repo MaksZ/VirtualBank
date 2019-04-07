@@ -35,9 +35,13 @@ namespace VirtualBank.Data
             return dm;
         }
 
+        public static Func<int> GenId { get; set; } = () => ++keyId;
+
+        public static bool SkipBundleToProduct { get; set; }
+
+
         internal static Constraint GetItem(this Category category, string name) => category.Items.OfType<Constraint>().First(x => x.DisplayText == name);
 
-        private static int GenId() => ++keyId;
 
         private static Category CreateCategory<T>(T value, CategoryType type) 
             => new Category
@@ -50,7 +54,7 @@ namespace VirtualBank.Data
         private static Constraint CreateConstraint(string name, int precedence, Category category)
             => new Constraint
             {
-                DisplayText = name,
+                Name = name,
                 Precedence = precedence,
                 Id = GenId(),
                 CategoryId = category.Id,
@@ -81,7 +85,7 @@ namespace VirtualBank.Data
             {
                 Id = GenId(),
                 Name = name,
-                Value = value,
+                Priority = value,
                 Products = new List<Product>()
             };
 
@@ -286,6 +290,8 @@ namespace VirtualBank.Data
             var product = products.First(x => x.Name == productName);
 
             bundle.Products.Add(product);
+
+            if (SkipBundleToProduct) return;
 
             if (product.Bundles == null) product.Bundles = new List<Bundle>();
 

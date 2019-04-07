@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace VirtualBank.Data.Entities
 {
     public class Category
     {
-        // [Key]
+        [Key]
         public int Id { get; set; }
 
         /// <summary>

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,13 +11,8 @@ namespace VirtualBank.Data.Entities
 {
     public class Product : CategoryItem
     {
-        // [Key]
-        public int Id { get; set; }
-
-        public string Name { get; set; }
-
-        // [NotMapped]
-        public string DisplayName => $"{Name} {Category?.Description}";
+        [NotMapped]
+        public override string DisplayText => $"{Name} {Category?.Description}";
 
         /// <summary>
         /// Describe what other products this one depends on
@@ -25,7 +22,7 @@ namespace VirtualBank.Data.Entities
         /// </remarks>
         public string BoundToProducts { get; set; }
 
-        // [NotMapped]
+        [NotMapped]
         public bool IsBound => !string.IsNullOrEmpty(BoundToProducts);
         
         /// <summary>

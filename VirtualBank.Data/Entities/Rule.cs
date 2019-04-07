@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +11,7 @@ namespace VirtualBank.Data.Entities
 {
     public class Rule
     {
-        // [Key]
+        [Key]
         public int Id { get; set; }
 
         /// <summary>
@@ -17,14 +19,15 @@ namespace VirtualBank.Data.Entities
         /// </summary>
         public ConstraintEngagement ConstraintEngagement { get; set; }
 
-        // [NotMapped]
-        public string DisplayName 
+        [NotMapped]
+        public string Description 
             => 
                 $"{Constraint?.Category?.Description}: {Constraint?.DisplayText} {(ConstraintEngagement == ConstraintEngagement.IncludingAbove ? "or higher" : "")}";
 
         /// <summary>
         /// Reference to related constraint
         /// </summary>
+        [ForeignKey(nameof(Constraint))]
         public int ConstraintId { get; set; }
 
         /// <summary>

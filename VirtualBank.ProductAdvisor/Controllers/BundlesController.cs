@@ -53,7 +53,7 @@ namespace VirtualBank.ProductAdvisor.Controllers
 
                 var bundle = advisor
                     .SelectBy(constraints)
-                    .OrderByDescending(b => b.Value)
+                    .OrderByDescending(b => b.Priority)
                     .Select(Converter.AsBundleDto)
                     .FirstOrDefault();
 

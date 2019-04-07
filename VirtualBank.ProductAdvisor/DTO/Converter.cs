@@ -12,7 +12,7 @@ namespace VirtualBank.ProductAdvisor.DTO
             obj => new ProductDto
             {
                 Id = obj.Id,
-                Name = obj.DisplayName
+                Name = obj.DisplayText
             };
 
         public static Func<Bundle, BundleDto> AsBundleDto = 
