@@ -14,7 +14,6 @@ namespace VirtualBank.ProductAdvisor.Controllers
 {
     public class RuleThemAllController : ApiController
     {
-        // private readonly IDataModel dataModel = ModelBuilder.Build();
         private readonly IDataModel dataModel = new VirtualBankRepo();
 
 
@@ -28,6 +27,14 @@ namespace VirtualBank.ProductAdvisor.Controllers
         public IEnumerable<QuestionDto> GetConstraints()
         {
             return dataModel.ConstraintCategories.Select(Converter.AsQuestionDto);
+        }
+
+        [Route("api/products")]
+        public IEnumerable<ProductDto> GetProducts()
+        {
+            return dataModel.ProductCategories
+                .SelectMany(x => x.Items.OfType<Product>())
+                .Select(Converter.AsProductDto);
         }
 
         [Route("api/bundles/advise")]
@@ -69,31 +76,15 @@ namespace VirtualBank.ProductAdvisor.Controllers
             }
         }
 
-        private List<Constraint> GetConstraintsBy(int age = -1, int student = -1, int income = -1)
-        {
-            var constraints = new List<Constraint>();
-
-            if (age != -1)
-                constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Age).GetItem(age));
-
-            if (student != -1)
-                constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Student).GetItem(student));
-
-            if (income != -1)
-                constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Income).GetItem(income));
-
-            if (!constraints.Any())
-                throw new ArgumentException("At least one answer is expected!");
-
-            return constraints;
-        }
-
         [HttpPost]
         [Route("api/bundles/advise")]
         public IHttpActionResult ValidateAdvise(AdviseDto advise)
         {
             try
             {
+                var t = advise.Answers;
+                var constraints = GetConstraintsBy(t.Age, t.Student, t.Income);
+
                 if (advise.SelectedBundle == null)
                     return BadRequest("Bundle is not included");
 
@@ -103,9 +94,6 @@ namespace VirtualBank.ProductAdvisor.Controllers
 
                 if (validationResult.Any())
                     return BadRequest(string.Join(Environment.NewLine, validationResult.Select(x => x.ErrorMessage)));
-
-                var t = advise.Answers;
-                var constraints = GetConstraintsBy(t.Age, t.Student, t.Income);
 
                 var bundleAdvisor = new Components.BundleAdvisor(new[] { bundle }, dataModel.DefaultRules);
 
@@ -132,6 +120,25 @@ namespace VirtualBank.ProductAdvisor.Controllers
         {
             //db.Dispose();
             base.Dispose(disposing);
+        }
+
+        private List<Constraint> GetConstraintsBy(int age = -1, int student = -1, int income = -1)
+        {
+            var constraints = new List<Constraint>();
+
+            if (age != -1)
+                constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Age).GetItem(age));
+
+            if (student != -1)
+                constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Student).GetItem(student));
+
+            if (income != -1)
+                constraints.Add(dataModel.ConstraintCategories.Get(ConstraintCategory.Income).GetItem(income));
+
+            if (!constraints.Any())
+                throw new ArgumentException("At least one answer is expected!");
+
+            return constraints;
         }
     }
 }

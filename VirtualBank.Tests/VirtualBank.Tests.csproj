@@ -59,9 +59,9 @@
       <Project>{8ec2bc1c-8a50-431e-a3b7-8d6d3a12081b}</Project>
       <Name>VirtualBank.Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VirtualBank.ProductAdvisor.Components\VirtualBank.ProductAdvisor.Components.csproj">
-      <Project>{0bcb16ef-00ac-401b-9cb4-ac968882c489}</Project>
-      <Name>VirtualBank.ProductAdvisor.Components</Name>
+    <ProjectReference Include="..\VirtualBank.ProductAdvisor\VirtualBank.ProductAdvisor.csproj">
+      <Project>{bfd76498-5a41-4d9f-a15c-970955b282a5}</Project>
+      <Name>VirtualBank.ProductAdvisor</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
